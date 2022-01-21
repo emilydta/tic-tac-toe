@@ -1,0 +1,39 @@
+body {
+    font-family: sans-serif;
+}
+
+.grid-squares {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    width: 75vmin;
+    height: 75vmin;
+}
+
+.grid-square {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid;
+    font-size: 2em;
+}
+
+.token-selection, .token-choices {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 75vmin;
+}
+
+.token-choices {
+    flex-direction: row;
+}
+
+#x-button, #o-button {
+    margin: 1em;
+    padding: 1em;
+    border: none;
+    border-radius: 20%;
+    cursor: pointer;
+}
