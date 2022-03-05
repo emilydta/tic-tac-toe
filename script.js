@@ -1,30 +1,36 @@
-// const topLeft = document.getElementById('top-left');
-// const topMiddle = document.getElementById('top-middle');
-// const topRight = document.getElementById('top-right');
-// const middleLeft = document.getElementById('middle-left');
-// const middleCenter = document.getElementById('middle-center');
-// const middleRight = document.getElementById('middle-right');
-// const bottomLeft = document.getElementById('bottom-left');
-// const bottomMiddle = document.getElementById('bottom-middle');
-// const bottomRight = document.getElementById('bottom-right');
+const gameBoard = (() => {
+  let array = [
+    "p","X","p",
+    "p","p","p",
+    "p","p","p"
+  ]
 
-function gameBoard() {
-    const gameBoardArray = ["X", "O", "X", "O", "X", "O", "X", "O", "X"];
-    const gridSquare = document.querySelectorAll(".grid-square")
-    
-    for (i = 0; i < gameBoardArray.length; i++) {
-        gridSquare[i].innerText = gameBoardArray[i];
+  const gridSquare = document.querySelectorAll(".grid-square");
+
+  return {array, gridSquare}
+  
+})()
+
+const displayController = (() => {
+  const addArrayToDisplay = (() => {
+    for (let i = 0; i < gameBoard.array.length; i++) {
+      gameBoard.gridSquare[i].innerText = gameBoard.array[i];
+      if (gameBoard.array[i] == "p") {
+        gameBoard.gridSquare[i].innerText = "";
+      }
     }
+  })()
 
-    return {gameBoardArray};
-}
+  const gridSquare = document.querySelector(".grid-squares");
+  gridSquare.addEventListener("click", (e) => {
+      if (e.target.innerText == "") {
+        e.target.innerText = "X"
+      };
+      for (let i = 0; i < 9; i++) {
+        gameBoard.array = [];
+        gameBoard.array.push(`${gameBoard.gridSquare[i].innerText}`)
+        console.log(gameBoard.array);
+      }
+  });
 
-gameBoard();
-
-function player(name) {
-    return {name};
-} 
-
-function gameFlow() {
-
-}
+})();
