@@ -1,7 +1,8 @@
 
 const gameBoard = (() => {
-  let array = ["","","","","","","","",""];
+  let array = ["X","X","","","","","","",""];
   const gridSquare = document.querySelectorAll(".grid-square");
+  const winMessage = document.getElementById("win-message");
  
   let xIndexList = [];
   let oIndexList = [];
@@ -12,6 +13,18 @@ const gameBoard = (() => {
        marker === 'O' && !oIndexList.includes(index) ? oIndexList.push(index) : null;
     })
   }
+
+  const xWin = () => {
+    Object.values(player.playerOneObj).indexOf("X") > -1 ? winMessage.innerText = `${player.playerOneObj.name} wins!` : 
+                                                           winMessage.innerText = `${player.playerTwoObj.name} wins!`;
+  }
+
+  const oWin = () => {
+    Object.values(player.playerOneObj).indexOf("O") > -1 ? winMessage.innerText = `${player.playerOneObj.name} wins!` : 
+                                                           winMessage.innerText = `${player.playerTwoObj.name} wins!`;
+  }
+  
+
 
   const gameWinConditions = () => {
     winningPatterns = [
@@ -26,9 +39,9 @@ const gameBoard = (() => {
     ]
     for (i = 0; i < winningPatterns.length; i++) {
       const oMatchingIndexes = winningPatterns[i].filter(element => oIndexList.includes(element));
-      oMatchingIndexes.length == winningPatterns[i].length ? console.log(oMatchingIndexes) : null;
+      oMatchingIndexes.length == winningPatterns[i].length ? oWin() : null;
       const xMatchingIndexes = winningPatterns[i].filter(element => xIndexList.includes(element));
-      xMatchingIndexes.length == winningPatterns[i].length ? console.log(xMatchingIndexes) : null;
+      xMatchingIndexes.length == winningPatterns[i].length ? xWin() : null;
     }
   }
   return {array, gridSquare, xIndexList, oIndexList, boardData, gameWinConditions}
@@ -62,20 +75,20 @@ const displayController = (() => {
     startScreen.style.display = "none";
     boardDisplay.style.display = "block";
   }
-
+  
   const gameStartComputer = () => {
     displayTokenSelection();
 
     xButton.addEventListener("click", () => {
-      player.playerObj.marker = "X";
+      player.playerOneObj.marker = "X";
     })
     
     oButton.addEventListener("click", () => {
-      player.playerObj.marker = "O";
+      player.playerOneObj.marker = "O";
     })
 
     startGame.addEventListener("click", () => {
-      if (player.playerObj.marker === "") {
+      if (player.playerOneObj.marker === "") {
         return;
       }
       displayBoard();
@@ -93,7 +106,7 @@ const displayController = (() => {
       const gridSquare = document.querySelector(".grid-squares");
       gridSquare.addEventListener("click", (e) => {
           if (e.target.innerText == "") {
-            e.target.innerText = player.playerObj.marker;
+            e.target.innerText = player.playerOneObj.marker;
             for (let i = 0; i < 9; i++) {
               gameBoard.array.splice(i, 1, `${gameBoard.gridSquare[i].innerText}`)
             }
@@ -106,8 +119,8 @@ const displayController = (() => {
     const computerAddMarkToBoard = () => {
       const gridSquare = document.querySelectorAll(".grid-square");
       let indexArray = []
-      player.playerObj.marker === "X" ? player.computerObj.marker = "O" : null;
-      player.playerObj.marker === "O" ? player.computerObj.marker = "X" : null;
+      player.playerOneObj.marker === "X" ? player.playerTwoObj.marker = "O" : null;
+      player.playerOneObj.marker === "O" ? player.playerTwoObj.marker = "X" : null;
 
       gameBoard.array.forEach((item, index) => {
         item === "" ? indexArray.push(index) : null;
@@ -115,7 +128,7 @@ const displayController = (() => {
 
       const viableSquare = Math.floor((Math.random() * indexArray.length));
       
-      indexArray.length === 0 ? null : gameBoard.array.splice(indexArray[viableSquare], 1, `${player.computerObj.marker}`);
+      indexArray.length === 0 ? null : gameBoard.array.splice(indexArray[viableSquare], 1, `${player.playerTwoObj.marker}`);
     };
   };
 
@@ -127,9 +140,17 @@ const displayController = (() => {
 })();
 
 const player = (() => {
-  let playerObj = {marker: ""};
-  let computerObj = {marker: ""};
-  return {playerObj, computerObj};
+  let playerOneObj = {
+    name: "Player",
+    marker: ""
+  };
+
+  let playerTwoObj = {
+    name: "Computer",
+    marker: ""
+  };
+  
+  return {playerOneObj, playerTwoObj};
 })();
 
 displayController.displayStartScreen();
