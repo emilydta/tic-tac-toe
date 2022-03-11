@@ -1,6 +1,6 @@
 
 const gameBoard = (() => {
-  let array = ["X","X","","","","","","",""];
+  let array = ["","","","","","","","",""];
   const gridSquare = document.querySelectorAll(".grid-square");
   const winMessage = document.getElementById("win-message");
  
@@ -15,18 +15,24 @@ const gameBoard = (() => {
   }
 
   const xWin = () => {
-    Object.values(player.playerOneObj).indexOf("X") > -1 ? winMessage.innerText = `${player.playerOneObj.name} wins!` : 
-                                                           winMessage.innerText = `${player.playerTwoObj.name} wins!`;
+    if (Object.values(player.playerOneObj).indexOf("X") > -1) {
+      winMessage.innerText = `${player.playerOneObj.name} wins!`
+      displayController.endGame();
+
+    } else winMessage.innerText = `${player.playerTwoObj.name} wins!`;
+      displayController.endGame();                                                   
   }
 
   const oWin = () => {
-    Object.values(player.playerOneObj).indexOf("O") > -1 ? winMessage.innerText = `${player.playerOneObj.name} wins!` : 
-                                                           winMessage.innerText = `${player.playerTwoObj.name} wins!`;
+    if (Object.values(player.playerOneObj).indexOf("O") > -1) {
+      winMessage.innerText = `${player.playerOneObj.name} wins!`
+      displayController.endGame();
+
+    } else winMessage.innerText = `${player.playerTwoObj.name} wins!`;
+      displayController.endGame();                                                    
   }
   
-
-
-  const gameWinConditions = () => {
+  const gameWin = () => {
     winningPatterns = [
       [0, 1, 2],
       [3, 4, 5],
@@ -44,11 +50,12 @@ const gameBoard = (() => {
       xMatchingIndexes.length == winningPatterns[i].length ? xWin() : null;
     }
   }
-  return {array, gridSquare, xIndexList, oIndexList, boardData, gameWinConditions}
+  return {array, gridSquare, xIndexList, oIndexList, boardData, gameWin}
 })()
 
 
 const displayController = (() => {
+  const gridSquare = document.querySelector(".grid-squares");
   const startScreen = document.querySelector(".start-screen");
   const tokenSelection = document.querySelector(".token-selection");
   const xButton = document.getElementById("x-button");
@@ -75,6 +82,12 @@ const displayController = (() => {
     startScreen.style.display = "none";
     boardDisplay.style.display = "block";
   }
+
+  const endGame = () => {
+    const gridSquare = document.querySelector(".grid-squares");
+    gridSquareClone = gridSquare.cloneNode(true);
+    gridSquare.parentNode.replaceChild(gridSquareClone, gridSquare);
+  };
   
   const gameStartComputer = () => {
     displayTokenSelection();
@@ -99,11 +112,10 @@ const displayController = (() => {
         gameBoard.gridSquare[i].innerText = gameBoard.array[i];
       }
       gameBoard.boardData();
-      gameBoard.gameWinConditions();
+      gameBoard.gameWin();
     }
 
     const playerAddMarkToBoard = (() => {
-      const gridSquare = document.querySelector(".grid-squares");
       gridSquare.addEventListener("click", (e) => {
           if (e.target.innerText == "") {
             e.target.innerText = player.playerOneObj.marker;
@@ -117,7 +129,6 @@ const displayController = (() => {
     })();
 
     const computerAddMarkToBoard = () => {
-      const gridSquare = document.querySelectorAll(".grid-square");
       let indexArray = []
       player.playerOneObj.marker === "X" ? player.playerTwoObj.marker = "O" : null;
       player.playerOneObj.marker === "O" ? player.playerTwoObj.marker = "X" : null;
@@ -136,7 +147,7 @@ const displayController = (() => {
     gameStartComputer();
   })
 
-  return {displayStartScreen}
+  return {displayStartScreen, endGame}
 })();
 
 const player = (() => {
