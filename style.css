@@ -2,6 +2,11 @@ body {
     font-family: sans-serif;
 }
 
+.end-game-screen {
+    display: flex;
+    background: white;
+}
+
 .grid-squares {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -18,7 +23,7 @@ body {
     font-size: 2em;
 }
 
-.token-selection, .token-choices {
+.start-screen, .token-selection, .player-selection {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -26,14 +31,11 @@ body {
     width: 75vmin;
 }
 
-.token-choices {
-    flex-direction: row;
-}
-
-#x-button, #o-button {
+#x-button, #o-button, #two-player, #computer {
     margin: 1em;
     padding: 1em;
     border: none;
-    border-radius: 20%;
+    border-radius: 10%;
     cursor: pointer;
 }
+
