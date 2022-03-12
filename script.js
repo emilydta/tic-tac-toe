@@ -1,3 +1,4 @@
+//x and o IndexList not updating after restart
 
 const gameBoard = (() => {
   let array = ["","","","","","","","",""];
@@ -17,19 +18,16 @@ const gameBoard = (() => {
   const xWin = () => {
     if (Object.values(player.playerOneObj).indexOf("X") > -1) {
       winMessage.innerText = `${player.playerOneObj.name} wins!`
-      displayController.endGame();
+      
 
-    } else winMessage.innerText = `${player.playerTwoObj.name} wins!`;
-      displayController.endGame();                                                   
+    } else winMessage.innerText = `${player.playerTwoObj.name} wins!`;                                                   
   }
 
   const oWin = () => {
     if (Object.values(player.playerOneObj).indexOf("O") > -1) {
       winMessage.innerText = `${player.playerOneObj.name} wins!`
-      displayController.endGame();
 
-    } else winMessage.innerText = `${player.playerTwoObj.name} wins!`;
-      displayController.endGame();                                                    
+    } else winMessage.innerText = `${player.playerTwoObj.name} wins!`;                                                    
   }
   
   const gameWin = () => {
@@ -43,14 +41,15 @@ const gameBoard = (() => {
       [0, 4, 8],
       [2, 4, 6], 
     ]
+
     for (i = 0; i < winningPatterns.length; i++) {
       const oMatchingIndexes = winningPatterns[i].filter(element => oIndexList.includes(element));
-      oMatchingIndexes.length == winningPatterns[i].length ? oWin() : null;
       const xMatchingIndexes = winningPatterns[i].filter(element => xIndexList.includes(element));
+      oMatchingIndexes.length == winningPatterns[i].length ? oWin() : null;
       xMatchingIndexes.length == winningPatterns[i].length ? xWin() : null;
     }
   }
-  return {array, gridSquare, xIndexList, oIndexList, boardData, gameWin}
+  return {array, gridSquare, xIndexList, oIndexList, boardData, gameWin, winMessage}
 })()
 
 
@@ -58,6 +57,7 @@ const displayController = (() => {
   const gridSquare = document.querySelector(".grid-squares");
   const startScreen = document.querySelector(".start-screen");
   const tokenSelection = document.querySelector(".token-selection");
+  const restartButton = document.getElementById("restart-button");
   const xButton = document.getElementById("x-button");
   const oButton = document.getElementById("o-button");
   const gameMode = document.querySelector(".game-mode");
@@ -69,6 +69,7 @@ const displayController = (() => {
   
   const displayStartScreen = () => {
     startScreen.style.display = "flex";
+    gameMode.style.display = "block";
     tokenSelection.style.display = "none";
     boardDisplay.style.display = "none";
   }
@@ -83,11 +84,20 @@ const displayController = (() => {
     boardDisplay.style.display = "block";
   }
 
-  const endGame = () => {
-    const gridSquare = document.querySelector(".grid-squares");
-    gridSquareClone = gridSquare.cloneNode(true);
-    gridSquare.parentNode.replaceChild(gridSquareClone, gridSquare);
-  };
+  const updateBoard = () => {
+    for (let i = 0; i < 9; i++) {
+      gameBoard.gridSquare[i].innerText = gameBoard.array[i];
+    }
+    gameBoard.boardData();
+    gameBoard.gameWin();
+  }
+
+  const restartGame = () => {
+    gameBoard.array = ["","","","","","","","",""];
+    gameBoard.xIndexList = [];
+    gameBoard.oIndexList = [];
+    updateBoard();
+  }
   
   const gameStartComputer = () => {
     displayTokenSelection();
@@ -107,24 +117,21 @@ const displayController = (() => {
       displayBoard();
     });
 
-    const updateBoard = () => {
-      for (let i = 0; i < 9; i++) {
-        gameBoard.gridSquare[i].innerText = gameBoard.array[i];
-      }
-      gameBoard.boardData();
-      gameBoard.gameWin();
-    }
-
     const playerAddMarkToBoard = (() => {
       gridSquare.addEventListener("click", (e) => {
-          if (e.target.innerText == "") {
-            e.target.innerText = player.playerOneObj.marker;
-            for (let i = 0; i < 9; i++) {
-              gameBoard.array.splice(i, 1, `${gameBoard.gridSquare[i].innerText}`)
-            }
-            computerAddMarkToBoard();
-            updateBoard();
-          };
+        if (gameBoard.winMessage.innerText) {
+          return;
+        }
+        if (e.target.innerText == "") {
+          e.target.innerText = player.playerOneObj.marker;
+          for (let i = 0; i < 9; i++) {
+            gameBoard.array.splice(i, 1, `${gameBoard.gridSquare[i].innerText}`)
+          }
+          updateBoard();
+        };
+        if (!gameBoard.winMessage.innerText) {
+          computerAddMarkToBoard();
+        }
       });
     })();
 
@@ -139,15 +146,16 @@ const displayController = (() => {
 
       const viableSquare = Math.floor((Math.random() * indexArray.length));
       
-      indexArray.length === 0 ? null : gameBoard.array.splice(indexArray[viableSquare], 1, `${player.playerTwoObj.marker}`);
+      gameBoard.array.splice(indexArray[viableSquare], 1, `${player.playerTwoObj.marker}`);
+      updateBoard();
+      
     };
   };
 
-  computer.addEventListener("click", () => {
-    gameStartComputer();
-  })
+  restartButton.addEventListener("click", restartGame);
+  computer.addEventListener("click", gameStartComputer);
 
-  return {displayStartScreen, endGame}
+  return {displayStartScreen}
 })();
 
 const player = (() => {
