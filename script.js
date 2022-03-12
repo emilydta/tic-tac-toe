@@ -1,21 +1,22 @@
 const gameBoard = (() => {
-  const boardArray = {array: ["","","","","","","","",""]};
   const gridSquare = document.querySelectorAll(".grid-square");
   const winMessage = document.getElementById("win-message");
+
+  const boardArray = {array: ["","","","","","","","",""]};
  
   const indexLists = {
     xIndexList: [],
     oIndexList: [],
     oMatchingIndexes: [],
-    xMatchingIndexes: []
+    xMatchingIndexes: [],
   }
 
   const newGame = () => {
     boardArray.array = ["","","","","","","","",""];
-    indexLists.xIndexList = []
-    indexLists.oIndexList = []
-    indexLists.oMatchingIndexes = []
-    indexLists.xMatchingIndexes = []
+    indexLists.xIndexList = [];
+    indexLists.oIndexList = [];
+    indexLists.oMatchingIndexes = [];
+    indexLists.xMatchingIndexes = [];
     winMessage.innerText = "";
     for (let i = 0; i < 9; i++) {
       gridSquare[i].innerText = boardArray.array[i];
@@ -71,6 +72,8 @@ const displayController = (() => {
   const startScreen = document.querySelector(".start-screen");
   const tokenSelection = document.querySelector(".token-selection");
   const restartButton = document.getElementById("restart-button");
+  const menuButton = document.getElementById("menu-button");
+  const backButton = document.getElementById("back-button");
   const xButton = document.getElementById("x-button");
   const oButton = document.getElementById("o-button");
   const gameMode = document.querySelector(".game-mode");
@@ -79,7 +82,6 @@ const displayController = (() => {
   const startGame = document.getElementById("start-game");
   const boardDisplay = document.querySelector(".board-display");
   const winMessage = document.getElementById("win-message");
-  
   
   const displayStartScreen = () => {
     startScreen.style.display = "flex";
@@ -105,6 +107,48 @@ const displayController = (() => {
     gameBoard.boardData();
     gameBoard.gameWin();
   }
+
+  const showMainMenu = () => {
+    gameBoard.newGame();
+    player.playerOneObj.name = "Player";
+    player.playerTwoObj.name = "Computer";
+    player.playerOneObj.marker = "";
+    player.playerTwoObj.marker = "";
+    displayStartScreen();
+  }
+
+  const playerAddMarkToBoard = (() => {
+    gridSquare.addEventListener("click", (e) => {
+      if (winMessage.innerText || e.target.innerText) {
+        return;
+      }
+      if (e.target.innerText === "") {
+        e.target.innerText = player.playerOneObj.marker;
+        for (let i = 0; i < 9; i++) {
+          gameBoard.boardArray.array.splice(i, 1, `${gameBoard.gridSquare[i].innerText}`)
+        }
+        updateBoard();
+      };
+      if (!winMessage.innerText) {
+        computerAddMarkToBoard();
+      }
+    });
+  })();
+
+  const computerAddMarkToBoard = () => {
+    let indexArray = [];
+    player.playerOneObj.marker === "X" ? player.playerTwoObj.marker = "O" : null;
+    player.playerOneObj.marker === "O" ? player.playerTwoObj.marker = "X" : null;
+
+    gameBoard.boardArray.array.forEach((item, index) => {
+      item === "" ? indexArray.push(index) : null;
+    })
+
+    const viableSquare = Math.floor((Math.random() * indexArray.length));
+    
+    gameBoard.boardArray.array.splice(indexArray[viableSquare], 1, `${player.playerTwoObj.marker}`);
+    updateBoard();
+  };
   
   const gameStartComputer = () => {
     displayTokenSelection();
@@ -123,43 +167,11 @@ const displayController = (() => {
       }
       displayBoard();
     });
-
-    const playerAddMarkToBoard = (() => {
-      gridSquare.addEventListener("click", (e) => {
-        if (winMessage.innerText) {
-          return;
-        }
-        if (e.target.innerText == "") {
-          e.target.innerText = player.playerOneObj.marker;
-          for (let i = 0; i < 9; i++) {
-            gameBoard.boardArray.array.splice(i, 1, `${gameBoard.gridSquare[i].innerText}`)
-          }
-          updateBoard();
-        };
-        if (!winMessage.innerText) {
-          computerAddMarkToBoard();
-        }
-      });
-    })();
-
-    const computerAddMarkToBoard = () => {
-      let indexArray = []
-      player.playerOneObj.marker === "X" ? player.playerTwoObj.marker = "O" : null;
-      player.playerOneObj.marker === "O" ? player.playerTwoObj.marker = "X" : null;
-
-      gameBoard.boardArray.array.forEach((item, index) => {
-        item === "" ? indexArray.push(index) : null;
-      })
-
-      const viableSquare = Math.floor((Math.random() * indexArray.length));
-      
-      gameBoard.boardArray.array.splice(indexArray[viableSquare], 1, `${player.playerTwoObj.marker}`);
-      updateBoard();
-      
-    };
   };
 
   restartButton.addEventListener("click", gameBoard.newGame);
+  menuButton.addEventListener("click", showMainMenu);
+  backButton.addEventListener("click", showMainMenu);
   computer.addEventListener("click", gameStartComputer);
 
   return {displayStartScreen}
