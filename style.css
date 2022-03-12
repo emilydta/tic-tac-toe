@@ -2,11 +2,6 @@ body {
     font-family: sans-serif;
 }
 
-.end-game-screen {
-    display: flex;
-    background: white;
-}
-
 .grid-squares {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -38,4 +33,3 @@ body {
     border-radius: 10%;
     cursor: pointer;
 }
-
