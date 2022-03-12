@@ -11,10 +11,13 @@ const gameBoard = (() => {
     xMatchingIndexes: [],
   }
 
+  const tieConditions = {counter: 0};
+
   const newGame = () => {
     boardArray.array = ["","","","","","","","",""];
     indexLists.xIndexList = [];
     indexLists.oIndexList = [];
+    tieConditions.counter = 0;
     indexLists.oMatchingIndexes = [];
     indexLists.xMatchingIndexes = [];
     winMessage.innerText = "";
@@ -44,6 +47,10 @@ const gameBoard = (() => {
     } else {winMessage.innerText = `${player.playerTwoObj.name} wins!`}                                                  
   }
 
+  const gameTie = () => {
+    winMessage.innerText = "It's a tie!";
+  }
+
   const gameWin = () => {
     winningPatterns = [
       [0, 1, 2],
@@ -55,17 +62,22 @@ const gameBoard = (() => {
       [0, 4, 8],
       [2, 4, 6], 
     ]
+    
+    boardArray.array.forEach((item, index) => {
+      indexLists.tieIndexList = [];
+      item === "" ? indexLists.tieIndexList.push(index) : null;
+    })
 
     for (i = 0; i < 8; i++) {
       indexLists.oMatchingIndexes = winningPatterns[i].filter(element => indexLists.oIndexList.includes(element));
       indexLists.xMatchingIndexes = winningPatterns[i].filter(element => indexLists.xIndexList.includes(element));
       indexLists.oMatchingIndexes.length === winningPatterns[i].length ? oWin() : null;
-      indexLists.xMatchingIndexes.length === winningPatterns[i].length ? xWin() : null;
+      indexLists.xMatchingIndexes.length === winningPatterns[i].length ? xWin() : null
     }
+    tieConditions.counter === 9 && indexLists.oMatchingIndexes.length < 3 && indexLists.oMatchingIndexes.length < 3 ? gameTie() : null; 
   }
-  return {boardArray, indexLists, gridSquare, newGame, boardData, gameWin, winMessage}
+  return {boardArray, indexLists, tieConditions, gridSquare, newGame, boardData, gameWin, winMessage}
 })()
-
 
 const displayController = (() => {
   const gridSquare = document.querySelector(".grid-squares");
@@ -104,6 +116,7 @@ const displayController = (() => {
     for (let i = 0; i < 9; i++) {
       gameBoard.gridSquare[i].innerText = gameBoard.boardArray.array[i];
     }
+    gameBoard.tieConditions.counter++;
     gameBoard.boardData();
     gameBoard.gameWin();
   }
