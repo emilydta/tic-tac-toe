@@ -26,7 +26,7 @@ body {
     width: 75vmin;
 }
 
-.x-button, .o-button, #two-player, #computer {
+.token-choices-a, .token-choices-b, #two-player, #computer {
     margin: 1em;
     padding: 1em;
     border: none;
