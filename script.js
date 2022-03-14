@@ -28,8 +28,9 @@ const gameBoard = (() => {
   
   const sortBoardData = () => {
     boardArray.array.forEach( (marker, index) => {
+      marker === 'O' && !indexLists.oIndexList.includes(index) ? indexLists.oIndexList.push(index) : null;
        marker === 'X' && !indexLists.xIndexList.includes(index) ? indexLists.xIndexList.push(index) : null;
-       marker === 'O' && !indexLists.oIndexList.includes(index) ? indexLists.oIndexList.push(index) : null;
+       
     })
   }
 
@@ -67,9 +68,9 @@ const gameBoard = (() => {
       indexLists.oMatchingIndexes = winningPatterns[i].filter(element => indexLists.oIndexList.includes(element));
       indexLists.xMatchingIndexes = winningPatterns[i].filter(element => indexLists.xIndexList.includes(element));
       indexLists.oMatchingIndexes.length === winningPatterns[i].length ? oWin() : null;
-      indexLists.xMatchingIndexes.length === winningPatterns[i].length ? xWin() : null
+      indexLists.xMatchingIndexes.length === winningPatterns[i].length ? xWin() : null;
     }
-    turnCounter.counter === 9 && indexLists.oMatchingIndexes.length < 3 && indexLists.oMatchingIndexes.length < 3 ? gameTie() : null; 
+    turnCounter.counter === 9 && indexLists.oMatchingIndexes.length < 3 && indexLists.xMatchingIndexes.length < 3 ? gameTie() : null; 
   }
   return {boardArray, indexLists, turnCounter, gridSquare, newGame, sortBoardData, gameWin, winMessage}
 })()
@@ -126,8 +127,8 @@ const displayController = (() => {
     for (let i = 0; i < 9; i++) {
       gameBoard.gridSquare[i].innerText = gameBoard.boardArray.array[i];
     }
-    gameBoard.turnCounter.counter++;
     gameBoard.sortBoardData();
+    gameBoard.turnCounter.counter++; 
     gameBoard.gameWin();
   }
 
@@ -146,7 +147,7 @@ const displayController = (() => {
     displayStartScreen();
   }
 
-  const playerAddMarkToBoard = (() => {
+  const playerAddMarkToBoard = () => {
     gridSquare.addEventListener("click", (e) => {
       if (winMessage.innerText || e.target.innerText) {
         return;
@@ -162,7 +163,7 @@ const displayController = (() => {
         computerAddMarkToBoard();
       }
     });
-  })();
+  };
 
   const computerAddMarkToBoard = () => {
     let indexArray = [];
@@ -172,9 +173,10 @@ const displayController = (() => {
     const viableSquare = Math.floor((Math.random() * indexArray.length));
     gameBoard.boardArray.array.splice(indexArray[viableSquare], 1, `${player.playerTwoObj.marker}`);
     updateBoard();
+    playerAddMarkToBoard()
   };
 
-  const addButtonColorA = () => {
+  const addButtonColorToGroupA = () => {
     tokenChoicesA.forEach(token => {
       token.classList.add("button-color");
     }) 
@@ -183,7 +185,7 @@ const displayController = (() => {
     }) 
   }
 
-  const addButtonColorB = () => {
+  const addButtonColorToGroupB = () => {
     tokenChoicesB.forEach(token => {
       token.classList.add("button-color");
     }) 
@@ -198,17 +200,21 @@ const displayController = (() => {
       if (e.target && e.target.id == "p1-x-button" || e.target && e.target.id == "p2-o-button" ) {
         player.playerOneObj.marker = "X";
         player.playerTwoObj.marker = "O";
-        addButtonColorA();
+        addButtonColorToGroupA();
       }
       if (e.target && e.target.id == "p1-o-button" || e.target && e.target.id == "p2-x-button" ) {
         player.playerOneObj.marker = "O";
         player.playerTwoObj.marker = "X";
-        addButtonColorB();
+        addButtonColorToGroupB();
       }
       if (e.target && e.target.matches(".start-button")) {
+        if (p1NameInput.value === "Computer" || p2NameInput.value === "Computer") {
+          return;
+        }
         if (player.playerOneObj.marker && player.playerTwoObj.marker && p1NameInput.value && p2NameInput.value) {
           player.playerOneObj.name = p1NameInput.value;
           player.playerTwoObj.name = p2NameInput.value;
+          gameBoard.newGame();
           displayBoard();
         }
       }
@@ -221,12 +227,12 @@ const displayController = (() => {
       if (e.target && e.target.id == "x-button") {
         player.playerOneObj.marker = "X";
         player.playerTwoObj.marker = "O";
-        addButtonColorA();
+        addButtonColorToGroupA();
       }
       if (e.target && e.target.id == "o-button") {
         player.playerOneObj.marker = "O";
         player.playerTwoObj.marker = "X";
-        addButtonColorB();
+        addButtonColorToGroupB();
       }
       if (e.target && e.target.matches(".start-button")) {
         if (player.playerOneObj.marker === "") {
@@ -234,6 +240,9 @@ const displayController = (() => {
         }
         player.playerTwoObj.name = "Computer";
         displayBoard();
+        gameBoard.newGame();
+        player.playerTwoObj.marker === "X" ? computerAddMarkToBoard() : null;
+        player.playerOneObj.marker === "X" ? playerAddMarkToBoard() : null;
       }
     });
   };
@@ -242,7 +251,11 @@ const displayController = (() => {
     e.target && e.target.matches(".back-button") ? showMainMenu() : null; 
   })
 
-  restartButton.addEventListener("click", gameBoard.newGame);
+  restartButton.addEventListener("click", () => {
+    gameBoard.newGame()
+    player.playerTwoObj.name === "Computer" && player.playerTwoObj.marker === "X" ? computerAddMarkToBoard() : null;
+  });
+
   menuButton.addEventListener("click", showMainMenu);
   computer.addEventListener("click", gameStartComputer);
   twoPlayer.addEventListener("click", gameStartPlayers);
