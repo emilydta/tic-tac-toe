@@ -1,5 +1,3 @@
-//turn indicator colours not working properly
-
 const gameBoard = (() => {
   const gridSquare = document.querySelectorAll(".grid-square");
   const winMessage = document.getElementById("win-message");
@@ -24,6 +22,8 @@ const gameBoard = (() => {
     turnCounter.counter = 0;
     indexLists.oMatchingIndexes = [];
     indexLists.xMatchingIndexes = [];
+    displayController.cancel.twoPlayersAddMarkToBoard === 0 ? displayController.addTurnIndicatorO() : null;
+    displayController.cancel.computerAddMarkToBoard === 0 ? removeTurnIndicator() : null;
     winMessage.innerText = "";
     for (let i = 0; i < 9; i++) {
       gridSquare[i].innerText = boardArray.array[i];
@@ -38,6 +38,11 @@ const gameBoard = (() => {
     })
   }
 
+  const removeTurnIndicator = () => {
+    displayController.playerOneIndicator.classList.remove("turn-indicator");
+    displayController.playerTwoIndicator.classList.remove("turn-indicator");
+  }
+
   const xWin = () => {
     if (Object.values(player.playerOneObj).indexOf("X") > -1) {
       winMessage.innerText = `${player.playerOneObj.name} wins!`;
@@ -45,7 +50,8 @@ const gameBoard = (() => {
     } else {
       winMessage.innerText = `${player.playerTwoObj.name} wins!`;
       playerTwoScore.innerText++;
-    }                                              
+    } 
+    removeTurnIndicator();                                             
   }
 
   const oWin = () => {
@@ -56,11 +62,13 @@ const gameBoard = (() => {
     } else {
       winMessage.innerText = `${player.playerTwoObj.name} wins!`;
       playerTwoScore.innerText++;
-    }                                                  
+    }     
+    removeTurnIndicator();                                             
   }
 
   const gameTie = () => {
     winMessage.innerText = "It's a tie!";
+    removeTurnIndicator();
   }
 
   const gameWin = () => {
@@ -181,35 +189,13 @@ const displayController = (() => {
       if (winMessage.innerText || e.target.innerText) {
         return;
       }
-      const addTurnIndicatorX = () => {
-        if (Object.values(player.playerOneObj).indexOf("X") > -1) {
-          playerOneIndicator.classList.add("turn-indicator");
-          playerTwoIndicator.classList.remove("turn-indicator");
-        } else if (Object.values(player.playerTwoObj).indexOf("X") > -1) {
-          playerTwoIndicator.classList.add("turn-indicator");
-          playerOneIndicator.classList.remove("turn-indicator");
-        }
-      }
-
-      const addTurnIndicatorO = () => {
-        if (Object.values(player.playerOneObj).indexOf("O") > -1) {
-          playerOneIndicator.classList.add("turn-indicator");
-          playerTwoIndicator.classList.remove("turn-indicator");
-        } else if (Object.values(player.playerTwoObj).indexOf("O") > -1) {
-          playerTwoIndicator.classList.add("turn-indicator");
-          playerOneIndicator.classList.remove("turn-indicator");
-        }
-      }
-      
-      addTurnIndicatorX();
-
       if (e.target.innerText === "") {
         if (gameBoard.turnCounter.counter === 0 || gameBoard.turnCounter.counter % 2 === 0) {
           e.target.innerText = "X";
           addTurnIndicatorX();
         }
         if (gameBoard.turnCounter.counter % 2 !== 0) {
-          e.target.innerText = "O"
+          e.target.innerText = "O";
           addTurnIndicatorO();
         }
         for (let i = 0; i < 9; i++) {
@@ -220,7 +206,7 @@ const displayController = (() => {
     })
   }
 
-  const playerAddMarkToBoard = (l) => {
+  const playerAddMarkToBoard = () => {
     gridSquare.addEventListener("click", (e) => {
       if (cancel.playerAddMarkToBoard > 0) {
         return;
@@ -273,6 +259,26 @@ const displayController = (() => {
     }) 
   }
 
+  const addTurnIndicatorO = () => {
+    if (Object.values(player.playerOneObj).indexOf("X") > -1) {
+      playerOneIndicator.classList.add("turn-indicator");
+      playerTwoIndicator.classList.remove("turn-indicator");
+    } else if (Object.values(player.playerTwoObj).indexOf("X") > -1) {
+      playerTwoIndicator.classList.add("turn-indicator");
+      playerOneIndicator.classList.remove("turn-indicator");
+    }
+  }
+
+  const addTurnIndicatorX = () => {
+    if (Object.values(player.playerOneObj).indexOf("O") > -1) {
+      playerOneIndicator.classList.add("turn-indicator");
+      playerTwoIndicator.classList.remove("turn-indicator");
+    } else if (Object.values(player.playerTwoObj).indexOf("O") > -1) {
+      playerTwoIndicator.classList.add("turn-indicator");
+      playerOneIndicator.classList.remove("turn-indicator");
+    }
+  }
+
   const gameStartPlayers = () => {
     displayPlayerChoicesScreen();
     startScreen.addEventListener("click", (e) => {
@@ -295,10 +301,10 @@ const displayController = (() => {
           player.playerTwoObj.name = p2NameInput.value;
           playerOneIndicator.innerText = `${player.playerOneObj.name}`;
           playerTwoIndicator.innerText = `${player.playerTwoObj.name}`;
-          gameBoard.newGame();
           cancel.twoPlayersAddMarkToBoard = 0;
           cancel.playerAddMarkToBoard++
           cancel.computerAddMarkToBoard++
+          gameBoard.newGame();
           displayBoard();
           twoPlayersAddMarkToBoard();
         }
@@ -327,10 +333,10 @@ const displayController = (() => {
         player.playerTwoObj.name = "Computer";
         playerOneIndicator.innerText = `${player.playerOneObj.name}`;
         playerTwoIndicator.innerText = `${player.playerTwoObj.name}`;
-        gameBoard.newGame()
         cancel.twoPlayersAddMarkToBoard++;
         cancel.playerAddMarkToBoard = 0;
         cancel.computerAddMarkToBoard = 0;
+        gameBoard.newGame();
         displayBoard();
         player.playerTwoObj.marker === "X" ? computerAddMarkToBoard() : null;
         player.playerOneObj.marker === "X" ? playerAddMarkToBoard() : null;
@@ -347,7 +353,7 @@ const displayController = (() => {
   menuButton.addEventListener("click", showMainMenu);
   computer.addEventListener("click", gameStartComputer);
   twoPlayer.addEventListener("click", gameStartPlayers);
-  return {displayStartScreen, cancel}
+  return {displayStartScreen, cancel, playerOneIndicator, playerTwoIndicator, addTurnIndicatorX, addTurnIndicatorO}
 })();
 
 const player = (() => {
