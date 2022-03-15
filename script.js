@@ -1,6 +1,10 @@
+//turn indicator colours not working properly
+
 const gameBoard = (() => {
   const gridSquare = document.querySelectorAll(".grid-square");
   const winMessage = document.getElementById("win-message");
+  const playerOneScore = document.getElementById("p1-score");
+  const playerTwoScore = document.getElementById("p2-score");
 
   const boardArray = {array: ["","","","","","","","",""]};
  
@@ -36,16 +40,23 @@ const gameBoard = (() => {
 
   const xWin = () => {
     if (Object.values(player.playerOneObj).indexOf("X") > -1) {
-      winMessage.innerText = `${player.playerOneObj.name} wins!`
-      
-    } else {winMessage.innerText = `${player.playerTwoObj.name} wins!`}                                              
+      winMessage.innerText = `${player.playerOneObj.name} wins!`;
+      playerOneScore.innerText++;
+    } else {
+      winMessage.innerText = `${player.playerTwoObj.name} wins!`;
+      playerTwoScore.innerText++;
+    }                                              
   }
 
   const oWin = () => {
     if (Object.values(player.playerOneObj).indexOf("O") > -1) {
-      winMessage.innerText = `${player.playerOneObj.name} wins!`
+      winMessage.innerText = `${player.playerOneObj.name} wins!`;
+      playerOneScore.innerText++;
 
-    } else {winMessage.innerText = `${player.playerTwoObj.name} wins!`}                                                  
+    } else {
+      winMessage.innerText = `${player.playerTwoObj.name} wins!`;
+      playerTwoScore.innerText++;
+    }                                                  
   }
 
   const gameTie = () => {
@@ -64,15 +75,16 @@ const gameBoard = (() => {
       [2, 4, 6], 
     ]
 
+    turnCounter.counter === 9 && indexLists.oMatchingIndexes.length < 3 && indexLists.xMatchingIndexes.length < 3 ? gameTie() : null; 
+
     for (i = 0; i < 8; i++) {
       indexLists.oMatchingIndexes = winningPatterns[i].filter(element => indexLists.oIndexList.includes(element));
       indexLists.xMatchingIndexes = winningPatterns[i].filter(element => indexLists.xIndexList.includes(element));
       indexLists.oMatchingIndexes.length === winningPatterns[i].length ? oWin() : null;
       indexLists.xMatchingIndexes.length === winningPatterns[i].length ? xWin() : null;
     }
-    turnCounter.counter === 9 && indexLists.oMatchingIndexes.length < 3 && indexLists.xMatchingIndexes.length < 3 ? gameTie() : null; 
   }
-  return {boardArray, indexLists, turnCounter, gridSquare, newGame, sortBoardData, gameWin, winMessage}
+  return {boardArray, indexLists, turnCounter, gridSquare, newGame, sortBoardData, gameWin, winMessage, playerOneScore, playerTwoScore}
 })()
 
 const displayController = (() => {
@@ -80,13 +92,14 @@ const displayController = (() => {
 
   //Menu Screens
   const startScreen = document.querySelector(".start-screen");
-  const gameMode = startScreen.querySelector(".game-mode");
+  const gameMode = startScreen.querySelector(".game-mode-selection");
   const tokenSelection = startScreen.querySelector(".token-selection");
   const playerChoicesScreen = startScreen.querySelector(".player-choices");
   const boardDisplay = document.querySelector(".board-display");
 
   //Navigation Buttons
   const restartButton = document.getElementById("restart-button");
+  const backButton = startScreen.querySelector(".back-button");
   const menuButton = document.getElementById("menu-button");
 
   //Game Modes
@@ -99,10 +112,13 @@ const displayController = (() => {
   const tokenChoicesA = startScreen.querySelectorAll(".token-choices-a");
   const tokenChoicesB = startScreen.querySelectorAll(".token-choices-b");
   const winMessage = document.getElementById("win-message");
+  const playerOneIndicator = document.querySelector(".player-one-indicator");
+  const playerTwoIndicator = document.querySelector(".player-two-indicator");
   
   const displayStartScreen = () => {
     startScreen.style.display = "flex";
     gameMode.style.display = "block";
+    backButton.style.display = "none";
     playerChoicesScreen.style.display = "none";
     tokenSelection.style.display = "none";
     boardDisplay.style.display = "none";
@@ -111,16 +127,18 @@ const displayController = (() => {
   const displayTokenSelection = () => {
     gameMode.style.display = "none";
     tokenSelection.style.display = "flex";
+    backButton.style.display = "flex";
   }
 
   const displayPlayerChoicesScreen = () => {
     gameMode.style.display = "none";
     playerChoicesScreen.style.display = "flex";
+    backButton.style.display = "flex";
   }
 
   const displayBoard = () => {
     startScreen.style.display = "none";
-    boardDisplay.style.display = "block";
+    boardDisplay.style.display = "flex";
   }
 
   const updateBoard = () => {
@@ -138,6 +156,8 @@ const displayController = (() => {
     player.playerTwoObj.name = "Player Two";
     player.playerOneObj.marker = "";
     player.playerTwoObj.marker = "";
+    gameBoard.playerOneScore.innerText = 0;
+    gameBoard.playerTwoScore.innerText = 0;
     tokenChoicesA.forEach(token => {
       token.classList.remove("button-color");
     })
@@ -147,8 +167,64 @@ const displayController = (() => {
     displayStartScreen();
   }
 
-  const playerAddMarkToBoard = () => {
+  const cancel = {
+    twoPlayersAddMarkToBoard: 0,
+    playerAddMarkToBoard: 0,
+    computerAddMarkToBoard: 0
+  };
+
+  const twoPlayersAddMarkToBoard = () => {
     gridSquare.addEventListener("click", (e) => {
+      if (cancel.twoPlayersAddMarkToBoard > 0) {
+        return;
+      }
+      if (winMessage.innerText || e.target.innerText) {
+        return;
+      }
+      const addTurnIndicatorX = () => {
+        if (Object.values(player.playerOneObj).indexOf("X") > -1) {
+          playerOneIndicator.classList.add("turn-indicator");
+          playerTwoIndicator.classList.remove("turn-indicator");
+        } else if (Object.values(player.playerTwoObj).indexOf("X") > -1) {
+          playerTwoIndicator.classList.add("turn-indicator");
+          playerOneIndicator.classList.remove("turn-indicator");
+        }
+      }
+
+      const addTurnIndicatorO = () => {
+        if (Object.values(player.playerOneObj).indexOf("O") > -1) {
+          playerOneIndicator.classList.add("turn-indicator");
+          playerTwoIndicator.classList.remove("turn-indicator");
+        } else if (Object.values(player.playerTwoObj).indexOf("O") > -1) {
+          playerTwoIndicator.classList.add("turn-indicator");
+          playerOneIndicator.classList.remove("turn-indicator");
+        }
+      }
+      
+      addTurnIndicatorX();
+
+      if (e.target.innerText === "") {
+        if (gameBoard.turnCounter.counter === 0 || gameBoard.turnCounter.counter % 2 === 0) {
+          e.target.innerText = "X";
+          addTurnIndicatorX();
+        }
+        if (gameBoard.turnCounter.counter % 2 !== 0) {
+          e.target.innerText = "O"
+          addTurnIndicatorO();
+        }
+        for (let i = 0; i < 9; i++) {
+          gameBoard.boardArray.array.splice(i, 1, `${gameBoard.gridSquare[i].innerText}`)
+        }
+        updateBoard();
+      };
+    })
+  }
+
+  const playerAddMarkToBoard = (l) => {
+    gridSquare.addEventListener("click", (e) => {
+      if (cancel.playerAddMarkToBoard > 0) {
+        return;
+      }
       if (winMessage.innerText || e.target.innerText) {
         return;
       }
@@ -168,12 +244,15 @@ const displayController = (() => {
   const computerAddMarkToBoard = () => {
     let indexArray = [];
     gameBoard.boardArray.array.forEach((item, index) => {
+      if (cancel.computerAddMarkToBoard > 0) {
+        return;
+      }
       item === "" ? indexArray.push(index) : null;
     });
     const viableSquare = Math.floor((Math.random() * indexArray.length));
     gameBoard.boardArray.array.splice(indexArray[viableSquare], 1, `${player.playerTwoObj.marker}`);
     updateBoard();
-    playerAddMarkToBoard()
+    playerAddMarkToBoard();
   };
 
   const addButtonColorToGroupA = () => {
@@ -207,15 +286,21 @@ const displayController = (() => {
         player.playerTwoObj.marker = "X";
         addButtonColorToGroupB();
       }
-      if (e.target && e.target.matches(".start-button")) {
+      if (e.target && e.target.id === "start-game-players") {
         if (p1NameInput.value === "Computer" || p2NameInput.value === "Computer") {
           return;
         }
         if (player.playerOneObj.marker && player.playerTwoObj.marker && p1NameInput.value && p2NameInput.value) {
           player.playerOneObj.name = p1NameInput.value;
           player.playerTwoObj.name = p2NameInput.value;
+          playerOneIndicator.innerText = `${player.playerOneObj.name}`;
+          playerTwoIndicator.innerText = `${player.playerTwoObj.name}`;
           gameBoard.newGame();
+          cancel.twoPlayersAddMarkToBoard = 0;
+          cancel.playerAddMarkToBoard++
+          cancel.computerAddMarkToBoard++
           displayBoard();
+          twoPlayersAddMarkToBoard();
         }
       }
     });
@@ -234,33 +319,35 @@ const displayController = (() => {
         player.playerTwoObj.marker = "X";
         addButtonColorToGroupB();
       }
-      if (e.target && e.target.matches(".start-button")) {
+      if (e.target && e.target.id === "start-game-computer") {
         if (player.playerOneObj.marker === "") {
           return;
         }
+        player.playerOneObj.name = "Player One";
         player.playerTwoObj.name = "Computer";
+        playerOneIndicator.innerText = `${player.playerOneObj.name}`;
+        playerTwoIndicator.innerText = `${player.playerTwoObj.name}`;
+        gameBoard.newGame()
+        cancel.twoPlayersAddMarkToBoard++;
+        cancel.playerAddMarkToBoard = 0;
+        cancel.computerAddMarkToBoard = 0;
         displayBoard();
-        gameBoard.newGame();
         player.playerTwoObj.marker === "X" ? computerAddMarkToBoard() : null;
         player.playerOneObj.marker === "X" ? playerAddMarkToBoard() : null;
       }
     });
   };
 
-  startScreen.addEventListener("click", (e) => {
-    e.target && e.target.matches(".back-button") ? showMainMenu() : null; 
-  })
-
   restartButton.addEventListener("click", () => {
     gameBoard.newGame()
     player.playerTwoObj.name === "Computer" && player.playerTwoObj.marker === "X" ? computerAddMarkToBoard() : null;
   });
 
+  backButton.addEventListener("click", showMainMenu);
   menuButton.addEventListener("click", showMainMenu);
   computer.addEventListener("click", gameStartComputer);
   twoPlayer.addEventListener("click", gameStartPlayers);
-
-  return {displayStartScreen}
+  return {displayStartScreen, cancel}
 })();
 
 const player = (() => {
