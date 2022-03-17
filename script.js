@@ -1,3 +1,5 @@
+//implement smart AI
+
 const gameBoard = (() => {
   const gridSquare = document.querySelectorAll(".grid-square");
   const winMessage = document.getElementById("win-message");
@@ -24,6 +26,18 @@ const gameBoard = (() => {
     indexLists.xMatchingIndexes = [];
     displayController.cancel.twoPlayersAddMarkToBoard === 0 ? displayController.addTurnIndicatorO() : null;
     displayController.cancel.computerAddMarkToBoard === 0 ? removeTurnIndicator() : null;
+    displayController.arrays.filteredSpaces = [];
+    displayController.arrays.winningMoves = [];
+    displayController.arrays.winningPatterns = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6], 
+    ],
     winMessage.innerText = "";
     for (let i = 0; i < 9; i++) {
       gridSquare[i].innerText = boardArray.array[i];
@@ -71,18 +85,18 @@ const gameBoard = (() => {
     removeTurnIndicator();
   }
 
-  const gameWin = () => {
-    winningPatterns = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6], 
-    ]
+  const winningPatterns = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6], 
+  ]
 
+  const gameWin = () => {
     turnCounter.counter === 9 && indexLists.oMatchingIndexes.length < 3 && indexLists.xMatchingIndexes.length < 3 ? gameTie() : null; 
 
     for (i = 0; i < 8; i++) {
@@ -92,7 +106,7 @@ const gameBoard = (() => {
       indexLists.xMatchingIndexes.length === winningPatterns[i].length ? xWin() : null;
     }
   }
-  return {boardArray, indexLists, turnCounter, gridSquare, newGame, sortBoardData, gameWin, winMessage, playerOneScore, playerTwoScore}
+  return {boardArray, indexLists, turnCounter, gridSquare, newGame, sortBoardData, gameWin, winningPatterns, winMessage, playerOneScore, playerTwoScore}
 })()
 
 const displayController = (() => {
@@ -181,6 +195,27 @@ const displayController = (() => {
     computerAddMarkToBoard: 0
   };
 
+  const arrays = {
+    winningMoves: [],
+    winningPatterns: [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6], 
+    ],
+    filteredSpaces: [],
+    possibleWins: [],
+    closeToWinArray: [],
+  };
+
+  const chooseRandom = {
+    pattern: 0,
+  };
+
   const twoPlayersAddMarkToBoard = () => {
     gridSquare.addEventListener("click", (e) => {
       if (cancel.twoPlayersAddMarkToBoard > 0) {
@@ -222,24 +257,182 @@ const displayController = (() => {
         updateBoard();
       };
       if (!winMessage.innerText && player.playerTwoObj.name == "Computer") {
-        computerAddMarkToBoard();
+        computerAddMarkToBoardMedium();
       }
     });
   };
 
+const computerAddMarkToBoardMedium = () => {
+  if (cancel.computerAddMarkToBoard > 0) {
+    return;
+  }
+
+  const possibleWinOnBoard = {present: false};
+
+  const checkIfPossibleWinOnBoard = () => {
+    arrays.possibleWins = [];
+    arrays.closeToWinArray = [];
+
+    const ifComputerIsO = () => {
+      if (player.playerTwoObj.marker === "X") {
+        return;
+      }
+
+      if (player.playerTwoObj.marker === "O") {
+        for (let i = 0; i < 8; i++) {
+          arrays.possibleWins = gameBoard.winningPatterns[i].filter(element => gameBoard.indexLists.xIndexList.includes(element));
+          if (arrays.possibleWins.length === 2) {
+            arrays.closeToWinArray = gameBoard.winningPatterns[i];
+          }  
+        }
+
+        if (arrays.closeToWinArray.length === 0) {
+          return;
+        }
+
+        arrays.closeToWinArray.forEach(item => {
+          if (gameBoard.boardArray.array[item] === "") {
+            gameBoard.boardArray.array.splice(item, 1, `${player.playerTwoObj.marker}`); 
+            possibleWinOnBoard.present = true;   
+            updateBoard();
+            playerAddMarkToBoard();
+          } 
+          else return;
+        })
+      }
+    }
+
+    const ifComputerIsX = () => {
+      if (player.playerTwoObj.marker === "O") {
+        return;
+      }
+
+      if (player.playerTwoObj.marker === "X") {
+        for (let i = 0; i < 8; i++) {
+          arrays.possibleWins = gameBoard.winningPatterns[i].filter(element => gameBoard.indexLists.oIndexList.includes(element));
+          if (arrays.possibleWins.length === 2) {
+            arrays.closeToWinArray = gameBoard.winningPatterns[i];
+          }  
+        }
+
+        if (arrays.closeToWinArray.length === 0) {
+          return;
+        }
+        arrays.closeToWinArray.forEach(item => {
+          if (gameBoard.boardArray.array[item] === "") {
+            gameBoard.boardArray.array.splice(item, 1, `${player.playerTwoObj.marker}`); 
+            possibleWinOnBoard.present = true;     
+            updateBoard();
+            playerAddMarkToBoard();
+          } 
+          else return;
+        })
+      }
+    }
+
+    ifComputerIsO();
+    ifComputerIsX();
+
+  }     
+
+  checkIfPossibleWinOnBoard();
+  if (possibleWinOnBoard.present === true) {
+    return;
+  }
+
+  let emptySpacesArray = [];
+  
+  gameBoard.boardArray.array.forEach((item, index) => {
+    item === "" ? emptySpacesArray.push(index) : null;
+  });
+
+  const chooseRandomMoveset = () => {
+    chooseRandom.pattern = Math.floor((Math.random() * arrays.winningPatterns.length));
+    console.log("chooseRandom.pattern")
+    console.log(chooseRandom.pattern)
+    arrays.winningPatterns.forEach((item, index) => {
+      arrays.winningMoves.push(arrays.winningPatterns[chooseRandom.pattern][index])
+      let undefinedIndex = arrays.winningMoves.indexOf(undefined);
+      undefinedIndex !== -1 ? arrays.winningMoves.splice(undefinedIndex, 1) : null;
+    })
+    arrays.filteredSpaces = arrays.winningMoves.filter((element) => emptySpacesArray.includes(element));
+    checkIfViableMoveset();
+  }
+
+  const checkIfViableMoveset = () => {
+    if (arrays.filteredSpaces.length === 0) {
+      arrays.filteredSpaces = emptySpacesArray;
+    }
+    arrays.filteredSpaces.forEach((item) => {
+      if (arrays.filteredSpaces.length < 3 && gameBoard.boardArray.array[item] !== "") {
+        if (gameBoard.turnCounter.counter < 5) {
+          arrays.winningMoves = [];
+          arrays.filteredSpaces = [];
+          chooseRandomMoveset();
+        } else
+        arrays.filteredSpaces = emptySpacesArray;
+      }
+
+      if (gameBoard.boardArray.array[item] === player.playerOneObj.marker) {
+        arrays.winningPatterns.splice(chooseRandom.pattern, 1);
+        arrays.winningMoves = [];
+        arrays.filteredSpaces = [];
+        chooseRandomMoveset();
+      }
+      
+      if (gameBoard.turnCounter.counter > 5 && arrays.filteredSpaces.length < 3) {
+        arrays.filteredSpaces = emptySpacesArray;
+      }
+    })
+  }
+
+  if (player.playerTwoObj.marker === "X" && gameBoard.turnCounter.counter === 0 || player.playerTwoObj.marker === "O" && gameBoard.turnCounter.counter === 1) {
+    chooseRandomMoveset();
+  }
+
+  let viableSpace = 0;
+
+  const checkIfViableSpace = () => {
+    checkIfViableMoveset();
+    console.log("gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]]")
+    console.log(gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]])
+    console.log("Boolean(gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]] !== -)")
+    console.log(Boolean(gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]] !== ""))
+    if (gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]] !== "") {
+      createViableSpace();
+    }
+  }
+
+  const createViableSpace = () => {
+    viableSpace = Math.floor((Math.random() * 3));
+    checkIfViableSpace();
+  }
+  
+  createViableSpace();
+  console.log("arrays.filteredSpaces")
+  console.log(arrays.filteredSpaces)
+  gameBoard.boardArray.array.splice(arrays.filteredSpaces[viableSpace], 1, `${player.playerTwoObj.marker}`);
+    console.log("arrays.winningPatterns")
+    console.log(arrays.winningPatterns)
+  updateBoard();
+  playerAddMarkToBoard();
+};
+
   const computerAddMarkToBoard = () => {
-    let indexArray = [];
+    let emptySpacesArray = [];
     gameBoard.boardArray.array.forEach((item, index) => {
       if (cancel.computerAddMarkToBoard > 0) {
         return;
       }
-      item === "" ? indexArray.push(index) : null;
+      item === "" ? emptySpacesArray.push(index) : null;
     });
-    const viableSquare = Math.floor((Math.random() * indexArray.length));
-    gameBoard.boardArray.array.splice(indexArray[viableSquare], 1, `${player.playerTwoObj.marker}`);
+    const viableSpace = Math.floor((Math.random() * emptySpacesArray.length));
+    gameBoard.boardArray.array.splice(emptySpacesArray[viableSpace], 1, `${player.playerTwoObj.marker}`);
     updateBoard();
     playerAddMarkToBoard();
   };
+
+  
 
   const addButtonColorToGroupA = () => {
     tokenChoicesA.forEach(token => {
@@ -338,7 +531,7 @@ const displayController = (() => {
         cancel.computerAddMarkToBoard = 0;
         gameBoard.newGame();
         displayBoard();
-        player.playerTwoObj.marker === "X" ? computerAddMarkToBoard() : null;
+        player.playerTwoObj.marker === "X" ? computerAddMarkToBoardMedium() : null;
         player.playerOneObj.marker === "X" ? playerAddMarkToBoard() : null;
       }
     });
@@ -346,14 +539,14 @@ const displayController = (() => {
 
   restartButton.addEventListener("click", () => {
     gameBoard.newGame()
-    player.playerTwoObj.name === "Computer" && player.playerTwoObj.marker === "X" ? computerAddMarkToBoard() : null;
+    player.playerTwoObj.name === "Computer" && player.playerTwoObj.marker === "X" ? computerAddMarkToBoardMedium() : null;
   });
 
   backButton.addEventListener("click", showMainMenu);
   menuButton.addEventListener("click", showMainMenu);
   computer.addEventListener("click", gameStartComputer);
   twoPlayer.addEventListener("click", gameStartPlayers);
-  return {displayStartScreen, cancel, playerOneIndicator, playerTwoIndicator, addTurnIndicatorX, addTurnIndicatorO}
+  return {displayStartScreen, cancel, playerOneIndicator, playerTwoIndicator, addTurnIndicatorX, addTurnIndicatorO, arrays}
 })();
 
 const player = (() => {
@@ -371,3 +564,4 @@ const player = (() => {
 })();
 
 displayController.displayStartScreen();
+
