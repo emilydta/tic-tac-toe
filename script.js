@@ -1,5 +1,3 @@
-//implement smart AI
-
 const gameBoard = (() => {
   const gridSquare = document.querySelectorAll(".grid-square");
   const winMessage = document.getElementById("win-message");
@@ -127,6 +125,9 @@ const displayController = (() => {
   //Game Modes
   const twoPlayer = document.getElementById("two-player");
   const computer = document.getElementById("computer");
+  const easyMode = document.getElementById("easy-mode");
+  const mediumMode = document.getElementById("medium-mode");
+  const hardMode = document.getElementById("hard-mode");
 
   //Other
   const p1NameInput = document.getElementById("p1-name");
@@ -524,8 +525,6 @@ const displayController = (() => {
     playerAddMarkToBoard();
   };
 
-  
-
   const addButtonColorToGroupA = () => {
     tokenChoicesA.forEach(token => {
       token.classList.add("button-color");
@@ -616,16 +615,25 @@ const displayController = (() => {
         cancel.computerAddMarkToBoard = 0;
         cancel.computerAddMarkToBoardMedium = 1;
         cancel.computerAddMarkToBoardHard = 1;
+        e.target.classList.add("difficulty-button-color");
+        mediumMode.classList.remove("difficulty-button-color");
+        hardMode.classList.remove("difficulty-button-color");
       }
       if (e.target.id == "medium-mode") {
         cancel.computerAddMarkToBoard = 1;
         cancel.computerAddMarkToBoardMedium = 0;
         cancel.computerAddMarkToBoardHard = 1;
+        e.target.classList.add("difficulty-button-color");
+        easyMode.classList.remove("difficulty-button-color");
+        hardMode.classList.remove("difficulty-button-color");
       }
       if (e.target.id == "hard-mode") {
         cancel.computerAddMarkToBoard = 1;
         cancel.computerAddMarkToBoardMedium = 1;
         cancel.computerAddMarkToBoardHard = 0;
+        e.target.classList.add("difficulty-button-color");
+        easyMode.classList.remove("difficulty-button-color");
+        mediumMode.classList.remove("difficulty-button-color");
       }
 
       if (e.target.id === "start-game-computer") {
