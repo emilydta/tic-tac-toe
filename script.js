@@ -192,7 +192,9 @@ const displayController = (() => {
   const cancel = {
     twoPlayersAddMarkToBoard: 0,
     playerAddMarkToBoard: 0,
-    computerAddMarkToBoard: 0
+    computerAddMarkToBoard: 0,
+    computerAddMarkToBoardMedium: 0,
+    computerAddMarkToBoardHard: 0,
   };
 
   const arrays = {
@@ -257,166 +259,253 @@ const displayController = (() => {
         updateBoard();
       };
       if (!winMessage.innerText && player.playerTwoObj.name == "Computer") {
-        computerAddMarkToBoardMedium();
+        cancel.computerAddMarkToBoard === 0 ? computerAddMarkToBoard() : null;
+        cancel.computerAddMarkToBoardMedium === 0 ? computerAddMarkToBoardMedium() : null;
+        cancel.computerAddMarkToBoardHard === 0 ? computerAddMarkToBoardHard() : null;
       }
     });
   };
 
-const computerAddMarkToBoardMedium = () => {
-  if (cancel.computerAddMarkToBoard > 0) {
-    return;
-  }
+  const computerAddMarkToBoardHard = () => {
+    if (cancel.computerAddMarkToBoardHard > 0) {
+      return;
+    }
+    console.log("hard mode")
+    const possibleWinOnBoard = {present: false};
 
-  const possibleWinOnBoard = {present: false};
+    const checkIfPossibleWinOnBoard = () => {
+      arrays.possibleWins = [];
+      arrays.closeToWinArray = [];
 
-  const checkIfPossibleWinOnBoard = () => {
-    arrays.possibleWins = [];
-    arrays.closeToWinArray = [];
-
-    const ifComputerIsO = () => {
-      if (player.playerTwoObj.marker === "X") {
-        return;
-      }
-
-      if (player.playerTwoObj.marker === "O") {
-        for (let i = 0; i < 8; i++) {
-          arrays.possibleWins = gameBoard.winningPatterns[i].filter(element => gameBoard.indexLists.xIndexList.includes(element));
-          if (arrays.possibleWins.length === 2) {
-            arrays.closeToWinArray = gameBoard.winningPatterns[i];
-          }  
-        }
-
-        if (arrays.closeToWinArray.length === 0) {
+      const ifComputerIsO = () => {
+        if (player.playerTwoObj.marker === "X") {
           return;
         }
 
-        arrays.closeToWinArray.forEach(item => {
-          if (gameBoard.boardArray.array[item] === "") {
-            gameBoard.boardArray.array.splice(item, 1, `${player.playerTwoObj.marker}`); 
-            possibleWinOnBoard.present = true;   
-            updateBoard();
-            playerAddMarkToBoard();
-          } 
-          else return;
-        })
-      }
-    }
+        if (player.playerTwoObj.marker === "O") {
+          for (let i = 0; i < 8; i++) {
+            arrays.possibleWins = gameBoard.winningPatterns[i].filter(element => gameBoard.indexLists.xIndexList.includes(element));
+            if (arrays.possibleWins.length === 2) {
+              arrays.closeToWinArray = gameBoard.winningPatterns[i];
+            }  
+          }
 
-    const ifComputerIsX = () => {
-      if (player.playerTwoObj.marker === "O") {
-        return;
-      }
+          if (arrays.closeToWinArray.length === 0) {
+            return;
+          }
 
-      if (player.playerTwoObj.marker === "X") {
-        for (let i = 0; i < 8; i++) {
-          arrays.possibleWins = gameBoard.winningPatterns[i].filter(element => gameBoard.indexLists.oIndexList.includes(element));
-          if (arrays.possibleWins.length === 2) {
-            arrays.closeToWinArray = gameBoard.winningPatterns[i];
-          }  
+          arrays.closeToWinArray.forEach(item => {
+            if (gameBoard.boardArray.array[item] === "") {
+              gameBoard.boardArray.array.splice(item, 1, `${player.playerTwoObj.marker}`); 
+              possibleWinOnBoard.present = true;   
+              updateBoard();
+              playerAddMarkToBoard();
+            } 
+            else return;
+          })
         }
+      }
 
-        if (arrays.closeToWinArray.length === 0) {
+      const ifComputerIsX = () => {
+        if (player.playerTwoObj.marker === "O") {
           return;
         }
-        arrays.closeToWinArray.forEach(item => {
-          if (gameBoard.boardArray.array[item] === "") {
-            gameBoard.boardArray.array.splice(item, 1, `${player.playerTwoObj.marker}`); 
-            possibleWinOnBoard.present = true;     
-            updateBoard();
-            playerAddMarkToBoard();
-          } 
-          else return;
-        })
+
+        if (player.playerTwoObj.marker === "X") {
+          for (let i = 0; i < 8; i++) {
+            arrays.possibleWins = gameBoard.winningPatterns[i].filter(element => gameBoard.indexLists.oIndexList.includes(element));
+            if (arrays.possibleWins.length === 2) {
+              arrays.closeToWinArray = gameBoard.winningPatterns[i];
+            }  
+          }
+
+          if (arrays.closeToWinArray.length === 0) {
+            return;
+          }
+          arrays.closeToWinArray.forEach(item => {
+            if (gameBoard.boardArray.array[item] === "") {
+              gameBoard.boardArray.array.splice(item, 1, `${player.playerTwoObj.marker}`); 
+              possibleWinOnBoard.present = true;     
+              updateBoard();
+              playerAddMarkToBoard();
+            } 
+            else return;
+          })
+        }
       }
+
+      ifComputerIsO();
+      ifComputerIsX();
+
+    }     
+
+    checkIfPossibleWinOnBoard();
+    if (possibleWinOnBoard.present === true) {
+      return;
     }
 
-    ifComputerIsO();
-    ifComputerIsX();
+    let emptySpacesArray = [];
+    
+    gameBoard.boardArray.array.forEach((item, index) => {
+      item === "" ? emptySpacesArray.push(index) : null;
+    });
 
-  }     
-
-  checkIfPossibleWinOnBoard();
-  if (possibleWinOnBoard.present === true) {
-    return;
-  }
-
-  let emptySpacesArray = [];
-  
-  gameBoard.boardArray.array.forEach((item, index) => {
-    item === "" ? emptySpacesArray.push(index) : null;
-  });
-
-  const chooseRandomMoveset = () => {
-    chooseRandom.pattern = Math.floor((Math.random() * arrays.winningPatterns.length));
-    console.log("chooseRandom.pattern")
-    console.log(chooseRandom.pattern)
-    arrays.winningPatterns.forEach((item, index) => {
-      arrays.winningMoves.push(arrays.winningPatterns[chooseRandom.pattern][index])
-      let undefinedIndex = arrays.winningMoves.indexOf(undefined);
-      undefinedIndex !== -1 ? arrays.winningMoves.splice(undefinedIndex, 1) : null;
-    })
-    arrays.filteredSpaces = arrays.winningMoves.filter((element) => emptySpacesArray.includes(element));
-    checkIfViableMoveset();
-  }
-
-  const checkIfViableMoveset = () => {
-    if (arrays.filteredSpaces.length === 0) {
-      arrays.filteredSpaces = emptySpacesArray;
+    const chooseRandomMoveset = () => {
+      chooseRandom.pattern = Math.floor((Math.random() * arrays.winningPatterns.length));
+      //console.log("chooseRandom.pattern")
+      //console.log(chooseRandom.pattern)
+      arrays.winningPatterns.forEach((item, index) => {
+        arrays.winningMoves.push(arrays.winningPatterns[chooseRandom.pattern][index])
+        let undefinedIndex = arrays.winningMoves.indexOf(undefined);
+        undefinedIndex !== -1 ? arrays.winningMoves.splice(undefinedIndex, 1) : null;
+      })
+      arrays.filteredSpaces = arrays.winningMoves.filter((element) => emptySpacesArray.includes(element));
+      checkIfViableMoveset();
     }
-    arrays.filteredSpaces.forEach((item) => {
-      if (arrays.filteredSpaces.length < 3 && gameBoard.boardArray.array[item] !== "") {
-        if (gameBoard.turnCounter.counter < 5) {
+
+    const checkIfViableMoveset = () => {
+      if (arrays.filteredSpaces.length === 0) {
+        arrays.filteredSpaces = emptySpacesArray;
+      }
+      arrays.filteredSpaces.forEach((item) => {
+        if (arrays.filteredSpaces.length < 3 && gameBoard.boardArray.array[item] !== "") {
+          if (gameBoard.turnCounter.counter < 5) {
+            arrays.winningMoves = [];
+            arrays.filteredSpaces = [];
+            chooseRandomMoveset();
+          } else
+          arrays.filteredSpaces = emptySpacesArray;
+        }
+
+        if (gameBoard.boardArray.array[item] === player.playerOneObj.marker) {
+          arrays.winningPatterns.splice(chooseRandom.pattern, 1);
           arrays.winningMoves = [];
           arrays.filteredSpaces = [];
           chooseRandomMoveset();
-        } else
-        arrays.filteredSpaces = emptySpacesArray;
-      }
-
-      if (gameBoard.boardArray.array[item] === player.playerOneObj.marker) {
-        arrays.winningPatterns.splice(chooseRandom.pattern, 1);
-        arrays.winningMoves = [];
-        arrays.filteredSpaces = [];
-        chooseRandomMoveset();
-      }
-      
-      if (gameBoard.turnCounter.counter > 5 && arrays.filteredSpaces.length < 3) {
-        arrays.filteredSpaces = emptySpacesArray;
-      }
-    })
-  }
-
-  if (player.playerTwoObj.marker === "X" && gameBoard.turnCounter.counter === 0 || player.playerTwoObj.marker === "O" && gameBoard.turnCounter.counter === 1) {
-    chooseRandomMoveset();
-  }
-
-  let viableSpace = 0;
-
-  const checkIfViableSpace = () => {
-    checkIfViableMoveset();
-    console.log("gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]]")
-    console.log(gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]])
-    console.log("Boolean(gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]] !== -)")
-    console.log(Boolean(gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]] !== ""))
-    if (gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]] !== "") {
-      createViableSpace();
+        }
+        
+        if (gameBoard.turnCounter.counter > 5 && arrays.filteredSpaces.length < 3) {
+          arrays.filteredSpaces = emptySpacesArray;
+        }
+      })
     }
+
+    if (player.playerTwoObj.marker === "X" && gameBoard.turnCounter.counter === 0 || player.playerTwoObj.marker === "O" && gameBoard.turnCounter.counter === 1) {
+      chooseRandomMoveset();
+    }
+
+    let viableSpace = 0;
+
+    const checkIfViableSpace = () => {
+      checkIfViableMoveset();
+      // console.log("gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]]")
+      // console.log(gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]])
+      // console.log("Boolean(gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]] !== -)")
+      // console.log(Boolean(gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]] !== ""))
+      if (gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]] !== "") {
+        createViableSpace();
+      }
+    }
+
+    const createViableSpace = () => {
+      viableSpace = Math.floor((Math.random() * 3));
+      checkIfViableSpace();
+    }
+    
+    createViableSpace();
+    // console.log("arrays.filteredSpaces")
+    // console.log(arrays.filteredSpaces)
+    gameBoard.boardArray.array.splice(arrays.filteredSpaces[viableSpace], 1, `${player.playerTwoObj.marker}`);
+      // console.log("arrays.winningPatterns")
+      // console.log(arrays.winningPatterns)
+    updateBoard();
+    playerAddMarkToBoard();
   }
 
-  const createViableSpace = () => {
-    viableSpace = Math.floor((Math.random() * 3));
-    checkIfViableSpace();
-  }
-  
-  createViableSpace();
-  console.log("arrays.filteredSpaces")
-  console.log(arrays.filteredSpaces)
-  gameBoard.boardArray.array.splice(arrays.filteredSpaces[viableSpace], 1, `${player.playerTwoObj.marker}`);
-    console.log("arrays.winningPatterns")
-    console.log(arrays.winningPatterns)
-  updateBoard();
-  playerAddMarkToBoard();
-};
+  const computerAddMarkToBoardMedium = () => {
+    if (cancel.computerAddMarkToBoardMedium > 0) {
+      return;
+    }
+
+    console.log("medium mode")
+
+    let emptySpacesArray = [];
+    
+    gameBoard.boardArray.array.forEach((item, index) => {
+      item === "" ? emptySpacesArray.push(index) : null;
+    });
+
+    const chooseRandomMoveset = () => {
+      chooseRandom.pattern = Math.floor((Math.random() * arrays.winningPatterns.length));
+      // console.log("chooseRandom.pattern")
+      // console.log(chooseRandom.pattern)
+      arrays.winningPatterns.forEach((item, index) => {
+        arrays.winningMoves.push(arrays.winningPatterns[chooseRandom.pattern][index])
+        let undefinedIndex = arrays.winningMoves.indexOf(undefined);
+        undefinedIndex !== -1 ? arrays.winningMoves.splice(undefinedIndex, 1) : null;
+      })
+      arrays.filteredSpaces = arrays.winningMoves.filter((element) => emptySpacesArray.includes(element));
+      checkIfViableMoveset();
+    }
+
+    const checkIfViableMoveset = () => {
+      if (arrays.filteredSpaces.length === 0) {
+        arrays.filteredSpaces = emptySpacesArray;
+      }
+      arrays.filteredSpaces.forEach((item) => {
+        if (arrays.filteredSpaces.length < 3 && gameBoard.boardArray.array[item] !== "") {
+          if (gameBoard.turnCounter.counter < 5) {
+            arrays.winningMoves = [];
+            arrays.filteredSpaces = [];
+            chooseRandomMoveset();
+          } else
+          arrays.filteredSpaces = emptySpacesArray;
+        }
+
+        if (gameBoard.boardArray.array[item] === player.playerOneObj.marker) {
+          arrays.winningPatterns.splice(chooseRandom.pattern, 1);
+          arrays.winningMoves = [];
+          arrays.filteredSpaces = [];
+          chooseRandomMoveset();
+        }
+        
+        if (gameBoard.turnCounter.counter > 5 && arrays.filteredSpaces.length < 3) {
+          arrays.filteredSpaces = emptySpacesArray;
+        }
+      })
+    }
+
+    if (player.playerTwoObj.marker === "X" && gameBoard.turnCounter.counter === 0 || player.playerTwoObj.marker === "O" && gameBoard.turnCounter.counter === 1) {
+      chooseRandomMoveset();
+    }
+
+    let viableSpace = 0;
+
+    const checkIfViableSpace = () => {
+      checkIfViableMoveset();
+      // console.log("gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]]")
+      // console.log(gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]])
+      // console.log("Boolean(gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]] !== -)")
+      // console.log(Boolean(gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]] !== ""))
+      if (gameBoard.boardArray.array[arrays.filteredSpaces[viableSpace]] !== "") {
+        createViableSpace();
+      }
+    }
+
+    const createViableSpace = () => {
+      viableSpace = Math.floor((Math.random() * 3));
+      checkIfViableSpace();
+    }
+    
+    createViableSpace();
+    // console.log("arrays.filteredSpaces")
+    // console.log(arrays.filteredSpaces)
+    gameBoard.boardArray.array.splice(arrays.filteredSpaces[viableSpace], 1, `${player.playerTwoObj.marker}`);
+      // console.log("arrays.winningPatterns")
+      // console.log(arrays.winningPatterns)
+    updateBoard();
+    playerAddMarkToBoard();
+  };
 
   const computerAddMarkToBoard = () => {
     let emptySpacesArray = [];
@@ -426,6 +515,9 @@ const computerAddMarkToBoardMedium = () => {
       }
       item === "" ? emptySpacesArray.push(index) : null;
     });
+
+    console.log("easy mode")
+
     const viableSpace = Math.floor((Math.random() * emptySpacesArray.length));
     gameBoard.boardArray.array.splice(emptySpacesArray[viableSpace], 1, `${player.playerTwoObj.marker}`);
     updateBoard();
@@ -475,17 +567,17 @@ const computerAddMarkToBoardMedium = () => {
   const gameStartPlayers = () => {
     displayPlayerChoicesScreen();
     startScreen.addEventListener("click", (e) => {
-      if (e.target && e.target.id == "p1-x-button" || e.target && e.target.id == "p2-o-button" ) {
+      if (e.target.id == "p1-x-button" || e.target.id == "p2-o-button" ) {
         player.playerOneObj.marker = "X";
         player.playerTwoObj.marker = "O";
         addButtonColorToGroupA();
       }
-      if (e.target && e.target.id == "p1-o-button" || e.target && e.target.id == "p2-x-button" ) {
+      if (e.target.id == "p1-o-button" || e.target.id == "p2-x-button" ) {
         player.playerOneObj.marker = "O";
         player.playerTwoObj.marker = "X";
         addButtonColorToGroupB();
       }
-      if (e.target && e.target.id === "start-game-players") {
+      if (e.target.id === "start-game-players") {
         if (p1NameInput.value === "Computer" || p2NameInput.value === "Computer") {
           return;
         }
@@ -497,6 +589,8 @@ const computerAddMarkToBoardMedium = () => {
           cancel.twoPlayersAddMarkToBoard = 0;
           cancel.playerAddMarkToBoard++
           cancel.computerAddMarkToBoard++
+          cancel.computerAddMarkToBoardMedium++
+          cancel.computerAddMarkToBoardHard++
           gameBoard.newGame();
           displayBoard();
           twoPlayersAddMarkToBoard();
@@ -508,18 +602,34 @@ const computerAddMarkToBoardMedium = () => {
   const gameStartComputer = () => {
     displayTokenSelection();
     startScreen.addEventListener("click", (e) => {
-      if (e.target && e.target.id == "x-button") {
+      if (e.target.id == "x-button") {
         player.playerOneObj.marker = "X";
         player.playerTwoObj.marker = "O";
         addButtonColorToGroupA();
       }
-      if (e.target && e.target.id == "o-button") {
+      if (e.target.id == "o-button") {
         player.playerOneObj.marker = "O";
         player.playerTwoObj.marker = "X";
         addButtonColorToGroupB();
       }
-      if (e.target && e.target.id === "start-game-computer") {
-        if (player.playerOneObj.marker === "") {
+      if (e.target.id == "easy-mode") {
+        cancel.computerAddMarkToBoard = 0;
+        cancel.computerAddMarkToBoardMedium = 1;
+        cancel.computerAddMarkToBoardHard = 1;
+      }
+      if (e.target.id == "medium-mode") {
+        cancel.computerAddMarkToBoard = 1;
+        cancel.computerAddMarkToBoardMedium = 0;
+        cancel.computerAddMarkToBoardHard = 1;
+      }
+      if (e.target.id == "hard-mode") {
+        cancel.computerAddMarkToBoard = 1;
+        cancel.computerAddMarkToBoardMedium = 1;
+        cancel.computerAddMarkToBoardHard = 0;
+      }
+
+      if (e.target.id === "start-game-computer") {
+        if (player.playerOneObj.marker === "" || cancel.computerAddMarkToBoard > 0 && cancel.computerAddMarkToBoardMedium > 0 && cancel.computerAddMarkToBoardHard > 0) {
           return;
         }
         player.playerOneObj.name = "Player One";
@@ -528,11 +638,13 @@ const computerAddMarkToBoardMedium = () => {
         playerTwoIndicator.innerText = `${player.playerTwoObj.name}`;
         cancel.twoPlayersAddMarkToBoard++;
         cancel.playerAddMarkToBoard = 0;
-        cancel.computerAddMarkToBoard = 0;
         gameBoard.newGame();
         displayBoard();
-        player.playerTwoObj.marker === "X" ? computerAddMarkToBoardMedium() : null;
+
         player.playerOneObj.marker === "X" ? playerAddMarkToBoard() : null;
+        player.playerTwoObj.marker === "X" && cancel.computerAddMarkToBoard === 0 ? computerAddMarkToBoard() : null;
+        player.playerTwoObj.marker === "X" && cancel.computerAddMarkToBoardMedium === 0 ? computerAddMarkToBoardMedium() : null;
+        player.playerTwoObj.marker === "X" && cancel.computerAddMarkToBoardHard === 0 ? computerAddMarkToBoardHard() : null;
       }
     });
   };
