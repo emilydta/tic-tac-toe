@@ -222,6 +222,12 @@ const displayController = (() => {
     pattern: 0,
   };
 
+  const runComputerTurn = () => {
+    player.playerTwoObj.marker === "X" && cancel.computerAddMarkToBoard === 0 ? computerAddMarkToBoard() : null;
+    player.playerTwoObj.marker === "X" && cancel.computerAddMarkToBoardMedium === 0 ? computerAddMarkToBoardMedium() : null;
+    player.playerTwoObj.marker === "X" && cancel.computerAddMarkToBoardHard === 0 ? computerAddMarkToBoardHard() : null;
+  }
+
   const twoPlayersAddMarkToBoard = () => {
     gridSquare.addEventListener("click", (e) => {
       if (cancel.twoPlayersAddMarkToBoard > 0) {
@@ -263,9 +269,7 @@ const displayController = (() => {
         updateBoard();
       };
       if (!winMessage.innerText && player.playerTwoObj.name == "Computer") {
-        cancel.computerAddMarkToBoard === 0 ? computerAddMarkToBoard() : null;
-        cancel.computerAddMarkToBoardMedium === 0 ? computerAddMarkToBoardMedium() : null;
-        cancel.computerAddMarkToBoardHard === 0 ? computerAddMarkToBoardHard() : null;
+        runComputerTurn();
       }
     });
   };
@@ -653,16 +657,14 @@ const displayController = (() => {
         displayBoard();
 
         player.playerOneObj.marker === "X" ? playerAddMarkToBoard() : null;
-        player.playerTwoObj.marker === "X" && cancel.computerAddMarkToBoard === 0 ? computerAddMarkToBoard() : null;
-        player.playerTwoObj.marker === "X" && cancel.computerAddMarkToBoardMedium === 0 ? computerAddMarkToBoardMedium() : null;
-        player.playerTwoObj.marker === "X" && cancel.computerAddMarkToBoardHard === 0 ? computerAddMarkToBoardHard() : null;
+        runComputerTurn();
       }
     });
   };
 
   restartButton.addEventListener("click", () => {
     gameBoard.newGame()
-    player.playerTwoObj.name === "Computer" && player.playerTwoObj.marker === "X" ? computerAddMarkToBoardMedium() : null;
+    runComputerTurn();
   });
 
   backButton.addEventListener("click", showMainMenu);
@@ -687,4 +689,3 @@ const player = (() => {
 })();
 
 displayController.displayStartScreen();
-
