@@ -45,7 +45,7 @@ const gameBoard = (() => {
   const sortBoardData = () => {
     boardArray.array.forEach( (marker, index) => {
       marker === 'O' && !indexLists.oIndexList.includes(index) ? indexLists.oIndexList.push(index) : null;
-       marker === 'X' && !indexLists.xIndexList.includes(index) ? indexLists.xIndexList.push(index) : null;
+      marker === 'X' && !indexLists.xIndexList.includes(index) ? indexLists.xIndexList.push(index) : null;
        
     })
   }
