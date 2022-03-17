@@ -187,6 +187,9 @@ const displayController = (() => {
     tokenChoicesB.forEach(token => {
       token.classList.remove("button-color");
     })
+    easyMode.classList.remove("difficulty-button-color");
+    mediumMode.classList.remove("difficulty-button-color");
+    hardMode.classList.remove("difficulty-button-color");
     displayStartScreen();
   }
 
