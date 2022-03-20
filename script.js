@@ -269,7 +269,9 @@ const displayController = (() => {
         updateBoard();
       };
       if (!winMessage.innerText && player.playerTwoObj.name == "Computer") {
-        runComputerTurn();
+        cancel.computerAddMarkToBoard === 0 ? computerAddMarkToBoard() : null;
+        cancel.computerAddMarkToBoardMedium === 0 ? computerAddMarkToBoardMedium() : null;
+        cancel.computerAddMarkToBoardHard === 0 ? computerAddMarkToBoardHard() : null;
       }
     });
   };
